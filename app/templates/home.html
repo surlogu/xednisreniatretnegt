@@ -4,9 +4,9 @@
         Our Channels
     </h1>
     <div class="mx-auto my-2 p-2 w-full">
-        <div class="block md:flex md:flex-wrap md:justify-center md:content-center md:items-center w-full text-center break-words">
+        <div class="block md:flex md:flex-wrap md:justify-center md:content-center md:items-center w-full text-center text-red-600 break-words">
             {% for chat in chats %}
-                <div class="w-full h-full md:w-2/5 lg:w-1/4 border border-blue-300 rounded bg-blue-100 hover:bg-blue-200 p-4 my-2 md:mx-1 shadow-md transition ease-in duration-150"> <a href="/{{chat.id}}" > {{chat.name}} </a> </div>
+                <div class="w-full h-full md:w-2/5 lg:w-1/4 border border-yellow-300 rounded bg-yellow-100 hover:bg-yellow-200 p-4 my-2 md:mx-1 shadow-md transition ease-in duration-150"> <a href="/{{chat.id}}" > {{chat.name}} </a> </div>
             {% endfor %}
         </div>
     </div>
