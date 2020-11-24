@@ -29,8 +29,18 @@ def generate_alias_id(chat):
 async def setup_routes(app, handler):
     h = handler
     client = h.client
+    p = r"/{chat:[^/]+}"
     routes =  [
-        web.get('/', h.home, name='home')
+        web.get('/', h.home),
+        web.post('/otg', h.dynamic_view),
+        web.get('/otg', h.otg_view),
+        web.get(p, h.index),
+        web.get(p + r"/logo", h.logo),
+        web.get(p + r"/{id:\d+}/view", h.info),
+        web.get(p + r"/{id:\d+}/download", h.download_get),
+        web.head(p + r"/{id:\d+}/download", h.download_head),
+        web.get(p + r"/{id:\d+}/thumbnail", h.thumbnail_get),
+        web.view(r'/{wildcard:.*}', h.wildcard)
     ]
     index_all = index_settings['index_all']
     index_private = index_settings['index_private']
@@ -43,46 +53,25 @@ async def setup_routes(app, handler):
             alias_id = None
             if chat.id in exclude_chats:
                 continue
-            
+
             if chat.is_user:
                 if index_private:
                     alias_id = generate_alias_id(chat)
-            elif chat.is_group:
-                if index_group:
-                    alias_id = generate_alias_id(chat)
-            else:
+            elif chat.is_channel:
                 if index_channel:
                     alias_id = generate_alias_id(chat)
-            
+            else:
+                if index_group:
+                    alias_id = generate_alias_id(chat)
+
             if not alias_id:
                 continue
-            
-            p = f"/{alias_id}"
-            r = [
-                web.get(p, h.index),
-                web.get(p + r"/logo", h.logo),
-                web.get(p + r"/{id:\d+}/view", h.info),
-                web.get(p + r"/{id:\d+}/download", h.download_get),
-                web.head(p + r"/{id:\d+}/download", h.download_head),
-                web.get(p + r"/{id:\d+}/thumbnail", h.thumbnail_get),
-                web.head(p + r"/{id:\d+}/thumbnail", h.thumbnail_head),
-            ]
-            routes += r
             log.debug(f"Index added for {chat.id} :: {chat.title} at /{alias_id}")
+
     else:
         for chat_id in include_chats:
             chat = await client.get_entity(chat_id)
             alias_id = generate_alias_id(chat)
-            p = f"/{alias_id}"
-            r = [
-                web.get(p, h.index),
-                web.get(p + r"/logo", h.logo),
-                web.get(p + r"/{id:\d+}/view", h.info),
-                web.get(p + r"/{id:\d+}/download", h.download_get),
-                web.head(p + r"/{id:\d+}/download", h.download_head),
-                web.get(p + r"/{id:\d+}/thumbnail", h.thumbnail_get),
-                web.head(p + r"/{id:\d+}/thumbnail", h.thumbnail_head),
-            ]
-            routes += r
             log.debug(f"Index added for {chat.id} :: {chat.title} at /{alias_id}")
+
     app.add_routes(routes)
